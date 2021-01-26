@@ -32,33 +32,55 @@ class MyWebServer(socketserver.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
-        # self.request.sendall(bytearray("OK",'utf-8'))
 
         request = self.data.decode('utf-8').split()
         method = request[0]
         url = request[1]
 
-        self.get_request(url)
+        if method != "GET":
+            self.error_405()
+        else:
+            self.get_request(url)
     
     def get_request(self, url):
         
-        file_dir = "www"
-        url =  file_dir + url
+        if "../" in url:
+            return self.error_404()
+        
+        url =  "www" + url
+        if url[-1] == "/":
+            url = url + "index.html"        
+        
+        print(url)
+        if os.path.isdir(url):
+            return self.error_301(url)
 
-        if url == file_dir + "/":
-            url = file_dir + "/index.html"
+        elif os.path.exists(url):
+            # TODO: suppourt mime-types HTML CSS?
+            response = "HTTP/1.1 200 OK"
+            self.request.sendall(response.encode('utf-8'))
 
-        if os.path.exists(url):
-            self.request.sendall(bytearray("OK",'utf-8'))
+            file_to_open = open(url).read()
+            self.request.sendall(file_to_open.encode('utf-8'))
+
         else:
-            self.error_404()
+            print("HERE1")
+            return self.error_404()
+
+
+    def error_405(self):
+        response = "HTTP/1.1 405 Method Not Allowed"
+        self.request.sendall(response.encode('utf-8'))
 
     def error_404(self):
-        response = f'HTTP/1.1 404 Error'
-        self.request.send(response.encode('utf-8'))
+        response = "HTTP/1.1 404 Not Found"
+        self.request.sendall(response.encode('utf-8'))
+    
+    def error_301(self, url):
+        print(url)
+        response = f'HTTP/1.1 301 Moved Permanently \r\n{url}/'
+        self.request.sendall(response.encode('utf-8'))
             
-
-
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
