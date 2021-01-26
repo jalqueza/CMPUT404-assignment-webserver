@@ -1,5 +1,5 @@
 #  coding: utf-8 
-import socketserver
+import socketserver, os
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
@@ -28,7 +28,7 @@ import socketserver
 
 
 class MyWebServer(socketserver.BaseRequestHandler):
-    
+
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
@@ -37,6 +37,28 @@ class MyWebServer(socketserver.BaseRequestHandler):
         request = self.data.decode('utf-8').split()
         method = request[0]
         url = request[1]
+
+        self.get_request(url)
+    
+    def get_request(self, url):
+        
+        file_dir = "www"
+        url =  file_dir + url
+
+        if url == file_dir + "/":
+            url = file_dir + "/index.html"
+
+        if os.path.exists(url):
+            self.request.sendall(bytearray("OK",'utf-8'))
+        else:
+            self.error_404()
+
+    def error_404(self):
+        response = f'HTTP/1.1 404 Error'
+        self.request.send(response.encode('utf-8'))
+            
+
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
