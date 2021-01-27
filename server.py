@@ -40,46 +40,40 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if method != "GET":
             self.error_405()
         else:
-            self.get_request(url)
+            self.GET(url)
     
-    def get_request(self, url):
-        
+    def GET(self, url):
         if "../" in url:
             return self.error_404()
         
         url =  "www" + url
         if url[-1] == "/":
-            url = url + "index.html"        
-        
-        print(url)
+            url = url + "index.html"  
+
         if os.path.isdir(url):
             return self.error_301(url)
-
         elif os.path.exists(url):
-            # TODO: suppourt mime-types HTML CSS?
-            response = "HTTP/1.1 200 OK"
-            self.request.sendall(response.encode('utf-8'))
-
-            file_to_open = open(url).read()
-            self.request.sendall(file_to_open.encode('utf-8'))
-
+            return self.success_200(url)
         else:
-            print("HERE1")
             return self.error_404()
-
+    
+    def success_200(self, url):
+        resource = open(url).read()
+        content_type = "text/html; encoding=uft-8" if url.endswith('.html') else "text/css; encoding=utf-8"
+        response = "HTTP/1.1 200 OK\r\n" + f'Content-Type: {content_type}\r\n\r\n' + f'{resource}\r\n'
+        self.request.sendall(response.encode('utf-8'))
 
     def error_405(self):
-        response = "HTTP/1.1 405 Method Not Allowed"
+        response = "HTTP/1.1 405 Method Not Allowed\r\n"
         self.request.sendall(response.encode('utf-8'))
 
     def error_404(self):
-        response = "HTTP/1.1 404 Not Found"
+        response = "HTTP/1.1 404 Not Found\r\n"
         self.request.sendall(response.encode('utf-8'))
     
     def error_301(self, url):
-        print(url)
-        response = f'HTTP/1.1 301 Moved Permanently \r\n{url}/'
-        self.request.sendall(response.encode('utf-8'))
+        response = f'HTTP/1.1 301 Moved Permanently \r\nLocation: {url[3:]}/\r\n'
+        self.request.sendall(response.encode('utf-8'))  
             
 
 if __name__ == "__main__":
