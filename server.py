@@ -2,7 +2,8 @@
 import socketserver, os
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
-# 
+# Copyright 2021 Jerwyn Alqueza
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -33,7 +34,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
 
-        request = self.data.decode('utf-8').split()
+        request = self.data.decode('utf-8').split() 
+        if len(request) < 2:
+            self.error_404()
+
         method = request[0]
         url = request[1]
 

@@ -18,9 +18,19 @@ server.py contains contributions from:
 * Eddie Antonio Santos
 * Jackson Z Chang
 * Mandy Meindersma 
+* Jerwyn Alqueza
 
 But the server.py example is derived from the python documentation
 examples thus some of the code is Copyright © 2001-2013 Python
 Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
+
+Resources used by Jerwyn Alqueza
+=================================
+
+Martijn Pieters
+https://stackoverflow.com/questions/15092437/python-encoding-utf-8
+
+Albert Veli
+https://stackoverflow.com/questions/10114224/how-to-properly-send-http-response-with-python-using-socket-library-onlys
